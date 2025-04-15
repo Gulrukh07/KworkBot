@@ -8,7 +8,9 @@ from aiogram.enums import ParseMode
 
 from enviroment.utils import Env
 from tgbot.handler.handlers import dp
-TOKEN=Env().bot.TOKEN
+
+TOKEN = Env().bot.TOKEN
+
 
 async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -18,4 +20,3 @@ async def main() -> None:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     asyncio.run(main())
-

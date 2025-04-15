@@ -16,4 +16,10 @@ def rkb_with_contact():
     rkb.adjust(2)
     return rkb.as_markup(resize_keyboard = True)
 
+btns = ['⬅️Back']
+size = [1]
+back_markup = make_reply_button(btns, size)
 
+buttons = ['FrontEnd', 'BackEnd', 'Android', '⬅️Back']
+sizes = [2,2]
+occupation_markup = make_reply_button(buttons,sizes)

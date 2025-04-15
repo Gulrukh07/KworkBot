@@ -1,14 +1,55 @@
+from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from tgbot.buttons.reply import make_reply_button
-from tgbot.states import DeveloperForm
+from db.model import User
+from tgbot.buttons.reply import back_markup, rkb_with_contact, occupation_markup, make_reply_button
+from tgbot.dispatcher import dp
+from tgbot.states import DeveloperForm, CustomerForm
 
 
+@dp.message(CustomerForm.main_panel, F.text == 'Back To Register')
+@dp.message(DeveloperForm.contact, F.text == '⬅️Back')
+@dp.message(DeveloperForm.start, F.text == 'Developer')
 async def developer_button_handler(message: Message, state: FSMContext) -> None:
     await state.update_data({'role': message.text})
-    buttons = ['⬅️Back']
-    sizes = [1]
-    markup = make_reply_button(buttons, sizes)
     await state.set_state(DeveloperForm.name)
-    await message.answer('Enter your fullname:', reply_markup=markup)
+    await message.answer('Enter your fullname:', reply_markup=back_markup)
+
+
+@dp.message(DeveloperForm.occupation, F.text == '⬅️Back')
+@dp.message(DeveloperForm.name, F.text)
+async def developer_name_handler(message: Message, state: FSMContext):
+    developer_name = message.text
+    await state.update_data({'name': developer_name})
+    await state.set_state(DeveloperForm.contact)
+    await message.answer(text='Share your contact by clicking Contact button', reply_markup=rkb_with_contact())
+
+
+@dp.message(DeveloperForm.main_panel, F.text == '⬅️Back')
+@dp.message(DeveloperForm.contact, F.contact)
+async def developer_contact_handler(message: Message, state: FSMContext):
+    developer_contact = message.contact.phone_number
+    await state.update_data({'contact': developer_contact})
+    await state.set_state(DeveloperForm.occupation)
+    await message.answer(text='What is your occupation?', reply_markup=occupation_markup)
+
+
+@dp.message(DeveloperForm.occupation, F.text)
+async def occupation_handler(message: Message, state: FSMContext):
+    developer_occupation = message.text
+    await state.update_data({'occupation': developer_occupation})
+    await state.set_state(DeveloperForm.main_panel)
+
+    data = await state.get_data()
+    if not User(chat_id=message.chat.id).first():
+        developer = User(chat_id=message.from_user.id, role=data['role'],
+                         name=data['name'], contact=data['contact'], occupation=data['occupation'])
+        developer.save()
+    else:
+        buttons = ['Latest Orders', 'My Orders', 'About Me', 'Settings', 'Contact us', '⬅️Back', 'Back To Register']
+        sizes = [1, 2, 2, 2]
+        markup = make_reply_button(buttons, sizes)
+        await message.answer('Welcome To Main Panel', reply_markup=markup)
+
+

@@ -7,6 +7,7 @@ load_dotenv()
 
 class Bot:
     TOKEN = getenv("TOKEN")
+    ADMIN = getenv("ADMIN")
 
 class DB:
     DB_NAME = getenv("DB_NAME")
