@@ -8,12 +8,21 @@ from tgbot.states import CustomerForm, ProjectForm
 from .handlers import dp
 
 
-@dp.message(CustomerForm.main_panel, F.text == '⬅️Back')
 @dp.message(CustomerForm.contact, F.text == '⬅️Back')  # noqa
 @dp.message(F.text == "Customer")
 async def customer_button_handler(message: Message, state: FSMContext) -> None:
-    await state.set_state(CustomerForm.name)
-    await message.answer('Enter your fullname:')
+    user_id = message.from_user.id
+    c = Customer(user_id=user_id).first()
+    if not c:
+        await state.set_state(CustomerForm.name)
+        await message.answer('Enter your fullname:')
+    else:
+        await state.set_state(CustomerForm.main_panel)
+        buttons = ['Order now', 'My Orders', 'About Me', 'Settings', 'Contact us', '⬅️Back', 'Back To Register']
+        sizes = [1, 2, 2, 2]
+        markup = make_reply_button(buttons, sizes)
+        await message.answer('Welcome To Main Panel', reply_markup=markup)
+
 
 
 @dp.message(CustomerForm.name, F.text.isalpha())

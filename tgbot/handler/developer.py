@@ -48,3 +48,11 @@ async def occupation_handler(message: Message, state: FSMContext):
     markup = make_reply_button(buttons, sizes)
     await message.answer('Welcome To Main Panel', reply_markup=markup)
 
+@dp.message(DeveloperForm.contact, DeveloperForm.occupation, DeveloperForm.main_panel,
+            F.text == 'Back To Register')
+async def back(message: Message, state: FSMContext):
+    await state.clear()
+    buttons = ['Developer', 'Customer']
+    sizes = [2]
+    markup = make_reply_button(buttons, sizes)
+    await message.answer('xayr', reply_markup=markup)

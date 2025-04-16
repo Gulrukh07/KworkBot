@@ -3,10 +3,6 @@ from dataclasses import dataclass
 
 from db.config import Manager
 
-@dataclass
-class User(Manager):
-    id :int = None
-    chat_id :int = None
 
 @dataclass
 class Customer(Manager):
