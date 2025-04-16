@@ -5,14 +5,14 @@ class CustomerForm(StatesGroup):
     name = State()
     contact = State()
     main_panel = State()
-    start = State()
+    # start = State()
 
 class DeveloperForm(StatesGroup):
     name = State()
     contact = State()
     occupation = State()
     main_panel = State()
-    start = State()
+    # start = State()
 
 class ProjectForm(StatesGroup):
     name = State()
@@ -24,5 +24,5 @@ class ProjectForm(StatesGroup):
     send_admin = State()
 
 
-class Start(StatesGroup):
-    start = State()
+# class Start(StatesGroup):
+#     start = State()
