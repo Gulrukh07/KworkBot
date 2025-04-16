@@ -14,7 +14,7 @@ class Customer(Manager):
 @dataclass
 class Developer(Manager):
     id :int = None
-    chat_id :int = None
+    user_id :int = None
     name : str = None
     contact : str = None
     occupation : str = None

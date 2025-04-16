@@ -9,13 +9,20 @@ from tgbot.states import DeveloperForm
 
 
 @dp.message(DeveloperForm.occupation, F.text == '⬅️Back')
-@dp.message(DeveloperForm.main_panel, F.text == '⬅️Back')
 @dp.message(DeveloperForm.contact, F.text == '⬅️Back')
 @dp.message(F.text == 'Developer')
 async def developer_button_handler(message: Message, state: FSMContext) -> None:
-    await state.update_data({'role': message.text})
-    await state.set_state(DeveloperForm.name)
-    await message.answer('Enter your fullname:')
+    user_id = message.from_user.id
+    c = Developer(user_id=user_id).first()
+    if not c:
+        await state.set_state(DeveloperForm.name)
+        await message.answer('Enter your fullname:')
+    else:
+        await state.set_state(DeveloperForm.main_panel)
+        buttons = ['Latest Orders', 'My Orders', 'About Me', 'Settings', 'Contact us',  'Back To Register']
+        sizes = [1, 2, 2, 2]
+        markup = make_reply_button(buttons, sizes)
+        await message.answer('Welcome To Main Panel', reply_markup=markup)
 
 
 @dp.message(DeveloperForm.name, F.text)
@@ -40,10 +47,10 @@ async def occupation_handler(message: Message, state: FSMContext):
     await state.update_data({'occupation': developer_occupation})
     await state.set_state(DeveloperForm.main_panel)
     data = await state.get_data()
-    developer = Developer(chat_id=message.from_user.id,
+    developer = Developer(user_id=message.from_user.id,
                           name=data['name'], contact=data['contact'], occupation=data['occupation'])
     developer.save()
-    buttons = ['Latest Orders', 'My Orders', 'About Me', 'Settings', 'Contact us', '⬅️Back', 'Back To Register']
+    buttons = ['Latest Orders', 'My Orders', 'About Me', 'Settings', 'Contact us', 'Back To Register']
     sizes = [1, 2, 2, 2]
     markup = make_reply_button(buttons, sizes)
     await message.answer('Welcome To Main Panel', reply_markup=markup)

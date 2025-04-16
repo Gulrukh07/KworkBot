@@ -18,7 +18,7 @@ async def customer_button_handler(message: Message, state: FSMContext) -> None:
         await message.answer('Enter your fullname:')
     else:
         await state.set_state(CustomerForm.main_panel)
-        buttons = ['Order now', 'My Orders', 'About Me', 'Settings', 'Contact us', '⬅️Back', 'Back To Register']
+        buttons = ['Order now', 'My Orders', 'About Me', 'Settings', 'Contact us', 'Back To Register']
         sizes = [1, 2, 2, 2]
         markup = make_reply_button(buttons, sizes)
         await message.answer('Welcome To Main Panel', reply_markup=markup)
@@ -42,7 +42,7 @@ async def customer_contact_handler(message: Message, state: FSMContext):
     customer = Customer(user_id=customer_id, name=data['name'], contact=data['contact'])
     customer.save()
     await state.set_state(CustomerForm.main_panel)
-    buttons = ['Order now', 'My Orders', 'About Me', 'Settings', 'Contact us', '⬅️Back', 'Bact To Register']
+    buttons = ['Order now', 'My Orders', 'About Me', 'Settings', 'Contact us', 'Bact To Register']
     sizes = [1, 2, 2, 2]
     markup = make_reply_button(buttons, sizes)
     await message.answer('Welcome To Main Panel', reply_markup=markup)
