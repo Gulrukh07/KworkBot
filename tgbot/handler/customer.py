@@ -5,10 +5,15 @@ from aiogram.types import Message
 from db.model import Customer
 from tgbot.buttons.inline import admin_contact
 from tgbot.buttons.reply import rkb_with_contact, make_reply_button, back_markup
-from tgbot.states import CustomerForm
+from tgbot.states import CustomerForm, ProjectForm
 from .handlers import dp
 
 
+@dp.message(ProjectForm.occupation_type, F.text == '⬅️Back')
+@dp.message(ProjectForm.description, F.text == '⬅️Back')
+@dp.message(ProjectForm.tz_file, F.text == '⬅️Back')
+@dp.message(ProjectForm.due_date, F.text == '⬅️Back')
+@dp.message(ProjectForm.price, F.text == '⬅️Back')
 @dp.message(CustomerForm.settings, F.text == '⬅️Back')
 @dp.message(CustomerForm.about_me, F.text == '⬅️Back')
 @dp.message(CustomerForm.contact, F.text == '⬅️Back')  # noqa
