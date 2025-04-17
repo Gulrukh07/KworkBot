@@ -3,9 +3,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from db.model import Customer
-from tgbot.buttons.reply import rkb_with_contact, make_reply_button, back_markup
 from tgbot.buttons.inline import admin_contact
-from tgbot.states import CustomerForm, ProjectForm
+from tgbot.buttons.reply import rkb_with_contact, make_reply_button, back_markup
+from tgbot.states import CustomerForm
 from .handlers import dp
 
 
@@ -34,6 +34,7 @@ async def customer_name_handler(message: Message, state: FSMContext):
     await state.set_state(CustomerForm.contact)
     await message.answer(text='Share your contact by clicking Contact button', reply_markup=rkb_with_contact())
 
+
 @dp.message(CustomerForm.contact, F.contact)
 async def customer_contact_handler(message: Message, state: FSMContext):
     customer_contact = message.contact.phone_number
@@ -47,13 +48,6 @@ async def customer_contact_handler(message: Message, state: FSMContext):
     sizes = [1, 2, 2, 2]
     markup = make_reply_button(buttons, sizes)
     await message.answer('Welcome To Main Panel', reply_markup=markup)
-
-
-@dp.message(F.text == 'Order now')
-async def order_now_handler(message: Message, state: FSMContext):
-    await state.set_state(ProjectForm.name)
-    await message.answer(text='Please provide all the information about your project!')
-    await message.answer(text='Project name:', reply_markup=back_markup)
 
 
 @dp.message(CustomerForm.main_panel, F.text == 'About Me')
@@ -77,7 +71,7 @@ async def about_me_settings_handler(message: Message, state: FSMContext):
     await message.answer(text='You can change your information here!')
     if user:
         buttons = ['Name', 'Contact', '⬅️Back']
-        sizes = [2,1]
+        sizes = [2, 1]
         markup = make_reply_button(buttons, sizes)
         await message.answer(text='What do you want to change?', reply_markup=markup)
     else:
@@ -105,8 +99,7 @@ async def update_contact(message: Message):
     user.update(name=message.text)
     await message.answer(text='Your contact has been updated!', reply_markup=back_markup)
 
+
 @dp.message(CustomerForm.main_panel, F.text == 'Contact us')
-async def contact_us(message:Message):
+async def contact_us(message: Message):
     await message.answer(text='You can contact to the admin by telegram only!', reply_markup=admin_contact())
-
-

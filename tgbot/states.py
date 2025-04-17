@@ -10,6 +10,7 @@ class CustomerForm(StatesGroup):
     my_orders = State()
     contact_us = State()
 
+
 class DeveloperForm(StatesGroup):
     name = State()
     contact = State()
@@ -20,6 +21,7 @@ class DeveloperForm(StatesGroup):
     my_orders = State()
     contact_us = State()
 
+
 class ProjectForm(StatesGroup):
     name = State()
     description = State()
@@ -27,4 +29,3 @@ class ProjectForm(StatesGroup):
     due_date = State()
     tz_file = State()
     occupation_type = State()
-    send_admin = State()
