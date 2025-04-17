@@ -20,6 +20,6 @@ btns = ['⬅️Back']
 size = [1]
 back_markup = make_reply_button(btns, size)
 
-buttons = ['FrontEnd', 'BackEnd', 'Android', '⬅️Back']
+buttons = ['FrontEnd', 'BackEnd', 'Android', 'Fullstack','⬅️Back']
 sizes = [2,2]
 occupation_markup = make_reply_button(buttons,sizes)

@@ -4,9 +4,12 @@ from aiogram.types import Message
 
 from db.model import Customer
 from tgbot.buttons.reply import rkb_with_contact, make_reply_button, back_markup
+from tgbot.buttons.inline import admin_contact
 from tgbot.states import CustomerForm, ProjectForm
 from .handlers import dp
 
+
+@dp.message(CustomerForm.settings, F.text == '⬅️Back')
 @dp.message(CustomerForm.about_me, F.text == '⬅️Back')
 @dp.message(CustomerForm.contact, F.text == '⬅️Back')  # noqa
 @dp.message(F.text == "Customer")
@@ -53,11 +56,6 @@ async def order_now_handler(message: Message, state: FSMContext):
     await message.answer(text='Project name:', reply_markup=back_markup)
 
 
-@dp.message(F.text == 'My Orders')
-async def my_orders(message: Message):
-    ...
-
-
 @dp.message(CustomerForm.main_panel, F.text == 'About Me')
 async def about_me_handler(message: Message, state: FSMContext):
     user = Customer(user_id=message.from_user.id).first()
@@ -70,3 +68,45 @@ async def about_me_handler(message: Message, state: FSMContext):
     else:
         about_me = 'No Information Found!'
     await message.answer(text=about_me, reply_markup=back_markup)
+
+
+@dp.message(CustomerForm.main_panel, F.text == 'Settings')
+async def about_me_settings_handler(message: Message, state: FSMContext):
+    user = Customer(user_id=message.from_user.id).first()
+    await state.set_state(CustomerForm.settings)
+    await message.answer(text='You can change your information here!')
+    if user:
+        buttons = ['Name', 'Contact', '⬅️Back']
+        sizes = [2,1]
+        markup = make_reply_button(buttons, sizes)
+        await message.answer(text='What do you want to change?', reply_markup=markup)
+    else:
+        await message.answer(text='No Information Found!', reply_markup=back_markup)
+
+
+@dp.message(CustomerForm.settings, F.text.in_({'Name', 'Contact'}))
+async def update_user(message: Message):
+    if message.text == 'Name':
+        await message.answer(text='Please enter your new name!', reply_markup=back_markup)
+    elif message.text == 'Contact':
+        await message.answer(text='Please enter your new contact!', reply_markup=back_markup)
+
+
+@dp.message(CustomerForm.settings, F.text.isalpha())
+async def update_name(message: Message):
+    user = Customer(user_id=message.from_user.id).first()
+    user.update(name=message.text)
+    await message.answer(text='Your name has been updated!', reply_markup=back_markup)
+
+
+@dp.message(CustomerForm.settings, F.text.isdigit())
+async def update_contact(message: Message):
+    user = Customer(user_id=message.from_user.id).first()
+    user.update(name=message.text)
+    await message.answer(text='Your contact has been updated!', reply_markup=back_markup)
+
+@dp.message(CustomerForm.main_panel, F.text == 'Contact us')
+async def contact_us(message:Message):
+    await message.answer(text='You can contact to the admin by telegram only!', reply_markup=admin_contact())
+
+

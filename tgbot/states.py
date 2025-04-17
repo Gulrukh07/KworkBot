@@ -6,6 +6,9 @@ class CustomerForm(StatesGroup):
     contact = State()
     main_panel = State()
     about_me = State()
+    settings = State()
+    my_orders = State()
+    contact_us = State()
 
 class DeveloperForm(StatesGroup):
     name = State()
@@ -13,6 +16,9 @@ class DeveloperForm(StatesGroup):
     occupation = State()
     main_panel = State()
     about_me = State()
+    settings = State()
+    my_orders = State()
+    contact_us = State()
 
 class ProjectForm(StatesGroup):
     name = State()

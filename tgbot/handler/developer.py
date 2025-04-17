@@ -3,10 +3,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from db.model import Developer
+from tgbot.buttons.inline import admin_contact
 from tgbot.buttons.reply import rkb_with_contact, occupation_markup, make_reply_button, back_markup
 from tgbot.dispatcher import dp
 from tgbot.states import DeveloperForm
 
+
+@dp.message(DeveloperForm.settings, F.text == '⬅️Back')
 @dp.message(DeveloperForm.about_me, F.text == '⬅️Back')
 @dp.message(DeveloperForm.occupation, F.text == '⬅️Back')
 @dp.message(DeveloperForm.contact, F.text == '⬅️Back')
@@ -19,7 +22,7 @@ async def developer_button_handler(message: Message, state: FSMContext) -> None:
         await message.answer('Enter your fullname:')
     else:
         await state.set_state(DeveloperForm.main_panel)
-        buttons = ['Latest Orders', 'My Orders', 'About Me', 'Settings', 'Contact us',  'Back To Register']
+        buttons = ['Latest Orders', 'My Orders', 'About Me', 'Settings', 'Contact us', 'Back To Register']
         sizes = [1, 2, 2, 2]
         markup = make_reply_button(buttons, sizes)
         await message.answer('Welcome To Main Panel', reply_markup=markup)
@@ -69,3 +72,53 @@ async def about_me_handler(message: Message, state: FSMContext):
     else:
         about_me = 'No Information Found!'
     await message.answer(text=about_me, reply_markup=back_markup)
+
+
+@dp.message(DeveloperForm.main_panel, F.text == 'Settings')
+async def about_me_settings_handler(message: Message, state: FSMContext):
+    user = Developer(user_id=message.from_user.id).first()
+    await state.set_state(DeveloperForm.settings)
+    await message.answer(text='You can change your information here!')
+    if user:
+        buttons = ['Name', 'Contact', 'Occupation', '⬅️Back']
+        sizes = [2, 2, 1]
+        markup = make_reply_button(buttons, sizes)
+        await message.answer(text='What do you want to change?', reply_markup=markup)
+    else:
+        await message.answer(text='No Information Found!', reply_markup=back_markup)
+
+
+@dp.message(DeveloperForm.settings, F.text.in_({'Name', 'Contact', 'Occupation'}))
+async def update_user(message: Message):
+    if message.text == 'Name':
+        await message.answer(text='Please enter your new name!', reply_markup=back_markup)
+    elif message.text == 'Contact':
+        await message.answer(text='Please enter your new contact!', reply_markup=back_markup)
+    elif message.text == 'Occupation':
+        await message.answer(text='Please choose your new occupation!', reply_markup=occupation_markup)
+
+
+@dp.message(DeveloperForm.settings, F.text.in_({'Fullstack', 'Android', 'BackEnd', 'FrontEnd'}))
+async def update_occupation(message: Message):
+    user = Developer(user_id=message.from_user.id).first()
+    user.update(occupation=message.text)
+    await message.answer(text='Your occupation has been updated!', reply_markup=back_markup)
+
+
+@dp.message(DeveloperForm.settings, F.text.isalpha())
+async def update_name(message: Message):
+    user = Developer(user_id=message.from_user.id).first()
+    user.update(name=message.text)
+    await message.answer(text='Your name has been updated!', reply_markup=back_markup)
+
+
+@dp.message(DeveloperForm.settings, F.text.isdigit())
+async def update_contact(message: Message):
+    user = Developer(user_id=message.from_user.id).first()
+    user.update(name=message.text)
+    await message.answer(text='Your contact has been updated!', reply_markup=back_markup)
+
+@dp.message(DeveloperForm.main_panel, F.text == 'Contact us')
+async def contact_us(message:Message):
+    await message.answer(text='You can contact to the admin by telegram only!', reply_markup=admin_contact())
+
