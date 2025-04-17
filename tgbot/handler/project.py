@@ -65,7 +65,7 @@ async def occupation_type_handler(message: Message, state: FSMContext):
     await state.update_data({'occupation_type': occupation_type})
     await state.set_state(ProjectForm.send_admin)
     data = await state.get_data()
-    project = Project(name=data['name'], description=data['description'], price=data['price'],
+    project = Project(name=data['name'], description=data['description'], price=data['price'],user_id=message.from_user.id,
                       due_date=data['due_date'], tz_file=data['tz_file'], occupation_type=data['occupation_type'])
     project.save()
     buttons = ['⬅️Back', 'Back to Register']

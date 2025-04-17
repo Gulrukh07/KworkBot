@@ -7,7 +7,7 @@ from tgbot.buttons.reply import rkb_with_contact, make_reply_button, back_markup
 from tgbot.states import CustomerForm, ProjectForm
 from .handlers import dp
 
-
+@dp.message(CustomerForm.about_me, F.text == '⬅️Back')
 @dp.message(CustomerForm.contact, F.text == '⬅️Back')  # noqa
 @dp.message(F.text == "Customer")
 async def customer_button_handler(message: Message, state: FSMContext) -> None:
@@ -24,14 +24,12 @@ async def customer_button_handler(message: Message, state: FSMContext) -> None:
         await message.answer('Welcome To Main Panel', reply_markup=markup)
 
 
-
 @dp.message(CustomerForm.name, F.text.isalpha())
 async def customer_name_handler(message: Message, state: FSMContext):
     customer_name = message.text
     await state.update_data({'name': customer_name})
     await state.set_state(CustomerForm.contact)
     await message.answer(text='Share your contact by clicking Contact button', reply_markup=rkb_with_contact())
-
 
 @dp.message(CustomerForm.contact, F.contact)
 async def customer_contact_handler(message: Message, state: FSMContext):
@@ -58,3 +56,17 @@ async def order_now_handler(message: Message, state: FSMContext):
 @dp.message(F.text == 'My Orders')
 async def my_orders(message: Message):
     ...
+
+
+@dp.message(CustomerForm.main_panel, F.text == 'About Me')
+async def about_me_handler(message: Message, state: FSMContext):
+    user = Customer(user_id=message.from_user.id).first()
+    await state.set_state(CustomerForm.about_me)
+    if user:
+        about_me = (
+            f" Name: {user.name}\n"
+            f" Contact: {user.contact}\n"
+        )
+    else:
+        about_me = 'No Information Found!'
+    await message.answer(text=about_me, reply_markup=back_markup)

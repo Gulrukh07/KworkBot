@@ -11,6 +11,7 @@ class Customer(Manager):
     name : str = None
     contact : str = None
 
+
 @dataclass
 class Developer(Manager):
     id :int = None
@@ -18,6 +19,7 @@ class Developer(Manager):
     name : str = None
     contact : str = None
     occupation : str = None
+
 
 @dataclass
 class Project(Manager):

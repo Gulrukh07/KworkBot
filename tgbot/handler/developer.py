@@ -3,11 +3,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from db.model import Developer
-from tgbot.buttons.reply import rkb_with_contact, occupation_markup, make_reply_button
+from tgbot.buttons.reply import rkb_with_contact, occupation_markup, make_reply_button, back_markup
 from tgbot.dispatcher import dp
 from tgbot.states import DeveloperForm
 
-
+@dp.message(DeveloperForm.about_me, F.text == '⬅️Back')
 @dp.message(DeveloperForm.occupation, F.text == '⬅️Back')
 @dp.message(DeveloperForm.contact, F.text == '⬅️Back')
 @dp.message(F.text == 'Developer')
@@ -55,11 +55,17 @@ async def occupation_handler(message: Message, state: FSMContext):
     markup = make_reply_button(buttons, sizes)
     await message.answer('Welcome To Main Panel', reply_markup=markup)
 
-@dp.message(DeveloperForm.contact, DeveloperForm.occupation, DeveloperForm.main_panel,
-            F.text == 'Back To Register')
-async def back(message: Message, state: FSMContext):
-    await state.clear()
-    buttons = ['Developer', 'Customer']
-    sizes = [2]
-    markup = make_reply_button(buttons, sizes)
-    await message.answer('xayr', reply_markup=markup)
+
+@dp.message(DeveloperForm.main_panel, F.text == 'About Me')
+async def about_me_handler(message: Message, state: FSMContext):
+    user = Developer(user_id=message.from_user.id).first()
+    await state.set_state(DeveloperForm.about_me)
+    if user:
+        about_me = (
+            f" Name: {user.name}\n"
+            f" Contact: {user.contact}\n"
+            f" Occupation: {user.occupation}\n"
+        )
+    else:
+        about_me = 'No Information Found!'
+    await message.answer(text=about_me, reply_markup=back_markup)
