@@ -2,13 +2,14 @@ from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from db.model import Customer
+from db.model import Customer, Project
 from tgbot.buttons.inline import admin_contact
 from tgbot.buttons.reply import rkb_with_contact, make_reply_button, back_markup
-from tgbot.states import CustomerForm, ProjectForm
+from tgbot.states import CustomerForm, ProjectForm, DeveloperForm
 from .handlers import dp
 
 
+@dp.message(CustomerForm.main_panel, F.text == '⬅️Back')
 @dp.message(ProjectForm.occupation_type, F.text == '⬅️Back')
 @dp.message(ProjectForm.description, F.text == '⬅️Back')
 @dp.message(ProjectForm.tz_file, F.text == '⬅️Back')
@@ -19,7 +20,7 @@ from .handlers import dp
 @dp.message(CustomerForm.contact, F.text == '⬅️Back')  # noqa
 @dp.message(F.text == "Customer")
 async def customer_button_handler(message: Message, state: FSMContext) -> None:
-    user_id = message.from_user.id
+    user_id = str(message.from_user.id)
     c = Customer(user_id=user_id).first()
     if not c:
         await state.set_state(CustomerForm.name)
@@ -57,7 +58,7 @@ async def customer_contact_handler(message: Message, state: FSMContext):
 
 @dp.message(CustomerForm.main_panel, F.text == 'About Me')
 async def about_me_handler(message: Message, state: FSMContext):
-    user = Customer(user_id=message.from_user.id).first()
+    user = Customer(user_id=str(message.from_user.id)).first()
     await state.set_state(CustomerForm.about_me)
     if user:
         about_me = (
@@ -71,7 +72,7 @@ async def about_me_handler(message: Message, state: FSMContext):
 
 @dp.message(CustomerForm.main_panel, F.text == 'Settings')
 async def about_me_settings_handler(message: Message, state: FSMContext):
-    user = Customer(user_id=message.from_user.id).first()
+    user = Customer(user_id=str(message.from_user.id)).first()
     await state.set_state(CustomerForm.settings)
     await message.answer(text='You can change your information here!')
     if user:
@@ -93,14 +94,14 @@ async def update_user(message: Message):
 
 @dp.message(CustomerForm.settings, F.text.isalpha())
 async def update_name(message: Message):
-    user = Customer(user_id=message.from_user.id).first()
+    user = Customer(user_id=str(message.from_user.id)).first()
     user.update(name=message.text)
     await message.answer(text='Your name has been updated!', reply_markup=back_markup)
 
 
 @dp.message(CustomerForm.settings, F.text.isdigit())
 async def update_contact(message: Message):
-    user = Customer(user_id=message.from_user.id).first()
+    user = Customer(user_id=str(message.from_user.id)).first()
     user.update(name=message.text)
     await message.answer(text='Your contact has been updated!', reply_markup=back_markup)
 
@@ -108,3 +109,23 @@ async def update_contact(message: Message):
 @dp.message(CustomerForm.main_panel, F.text == 'Contact us')
 async def contact_us(message: Message):
     await message.answer(text='You can contact to the admin by telegram only!', reply_markup=admin_contact())
+
+
+@dp.message(CustomerForm.main_panel, F.text == 'My Orders')
+async def my_orders_handler(message:Message, state:FSMContext):
+    projects = Project(user_id=str(message.from_user.id)).get_all() # noqa
+    data = []
+    i = 1
+    for project in projects:
+        data.append(
+            f"Your {i} - Project: \n\n"
+            f"📌 Name: {project['name']}\n"
+            f"📝 Description: {project['description']}\n"
+            f"💰 Price: {project['price']}\n"
+            f"📅 Due Date: {project['due_date']}\n"
+            f"📂 Tz file: {project['tz_file']}\n"
+            f"🔧 Occupation Type: {project['occupation_type']}\n"
+        )
+        i+=1
+    formatted_data = "\n" + "\n".join(data)
+    await message.answer(text=f'Your Projects:{formatted_data}', reply_markup=back_markup)

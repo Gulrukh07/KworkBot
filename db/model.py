@@ -33,3 +33,4 @@ class Project(Manager):
     occupation_type : str = None
     user_id : int = None
     created_at : datetime = None
+    developer_id :int = None

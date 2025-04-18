@@ -2,20 +2,21 @@ from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from db.model import Developer
+from db.model import Developer, Project
 from tgbot.buttons.inline import admin_contact
 from tgbot.buttons.reply import rkb_with_contact, occupation_markup, make_reply_button, back_markup
 from tgbot.dispatcher import dp
 from tgbot.states import DeveloperForm
 
 
+@dp.message(DeveloperForm.main_panel, F.text == '⬅️Back')
 @dp.message(DeveloperForm.settings, F.text == '⬅️Back')
 @dp.message(DeveloperForm.about_me, F.text == '⬅️Back')
 @dp.message(DeveloperForm.occupation, F.text == '⬅️Back')
 @dp.message(DeveloperForm.contact, F.text == '⬅️Back')
 @dp.message(F.text == 'Developer')
 async def developer_button_handler(message: Message, state: FSMContext) -> None:
-    user_id = message.from_user.id
+    user_id = str(message.from_user.id)
     c = Developer(user_id=user_id).first()
     if not c:
         await state.set_state(DeveloperForm.name)
@@ -62,7 +63,7 @@ async def occupation_handler(message: Message, state: FSMContext):
 
 @dp.message(DeveloperForm.main_panel, F.text == 'About Me')
 async def about_me_handler(message: Message, state: FSMContext):
-    user = Developer(user_id=message.from_user.id).first()
+    user = Developer(user_id=str(message.from_user.id)).first()
     await state.set_state(DeveloperForm.about_me)
     if user:
         about_me = (
@@ -77,7 +78,7 @@ async def about_me_handler(message: Message, state: FSMContext):
 
 @dp.message(DeveloperForm.main_panel, F.text == 'Settings')
 async def about_me_settings_handler(message: Message, state: FSMContext):
-    user = Developer(user_id=message.from_user.id).first()
+    user = Developer(user_id=str(message.from_user.id)).first()
     await state.set_state(DeveloperForm.settings)
     await message.answer(text='You can change your information here!')
     if user:
@@ -101,21 +102,21 @@ async def update_user(message: Message):
 
 @dp.message(DeveloperForm.settings, F.text.in_({'Fullstack', 'Android', 'BackEnd', 'FrontEnd'}))
 async def update_occupation(message: Message):
-    user = Developer(user_id=message.from_user.id).first()
+    user = Developer(user_id=str(message.from_user.id)).first()
     user.update(occupation=message.text)
     await message.answer(text='Your occupation has been updated!', reply_markup=back_markup)
 
 
 @dp.message(DeveloperForm.settings, F.text.isalpha())
 async def update_name(message: Message):
-    user = Developer(user_id=message.from_user.id).first()
+    user = Developer(user_id=str(message.from_user.id)).first()
     user.update(name=message.text)
     await message.answer(text='Your name has been updated!', reply_markup=back_markup)
 
 
 @dp.message(DeveloperForm.settings, F.text.isdigit())
 async def update_contact(message: Message):
-    user = Developer(user_id=message.from_user.id).first()
+    user = Developer(user_id=str(message.from_user.id)).first()
     user.update(name=message.text)
     await message.answer(text='Your contact has been updated!', reply_markup=back_markup)
 
@@ -123,3 +124,22 @@ async def update_contact(message: Message):
 async def contact_us(message:Message):
     await message.answer(text='You can contact to the admin by telegram only!', reply_markup=admin_contact())
 
+
+@dp.message(DeveloperForm.main_panel, F.text == 'My Orders')
+async def my_orders_handler(message:Message):
+    projects = Project(developer_id=str(message.from_user.id)).get_all() # noqa
+    data = []
+    i = 1
+    for project in projects:
+        data.append(
+            f"Your {i} - Project: \n\n"
+            f"📌 Name: {project['name']}\n"
+            f"📝 Description: {project['description']}\n"
+            f"💰 Price: {project['price']}\n"
+            f"📅 Due Date: {project['due_date']}\n"
+            f"📂 Tz file: {project['tz_file']}\n"
+            f"🔧 Occupation Type: {project['occupation_type']}\n"
+        )
+        i+=1
+    formatted_data = "\n" + "\n".join(data)
+    await message.answer(text=f'Your Projects:{formatted_data}', reply_markup=back_markup)

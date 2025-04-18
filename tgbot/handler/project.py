@@ -54,14 +54,24 @@ async def price_handler(message: Message, state: FSMContext):
 async def due_date_handler(message: Message, state: FSMContext):
     due_date = message.text
     await state.update_data(due_date=due_date)
-    await state.set_state(ProjectForm.tz_file)
+    await state.set_state(ProjectForm.tz_file_exist)
     await message.answer(text='Do you have TZ file of your Project?[Yes/No]', reply_markup=back_markup)
 
+@dp.message(ProjectForm.tz_file_exist, F.text.lower() == "yes")
+async def due_date_handler(message: Message, state: FSMContext):
+    await state.set_state(ProjectForm.tz_file)
+    await message.answer(text='Tz file send')
 
-@dp.message(ProjectForm.tz_file, F.text)
+
+@dp.message(ProjectForm.tz_file_exist, F.text.lower() == "no")
+async def due_date_handler(message: Message, state: FSMContext):
+    await state.set_state(ProjectForm.occupation_type)
+    await message.answer(text='For Whom is Your Project', reply_markup=occupation_markup)
+
+@dp.message(ProjectForm.tz_file, F.document)
 async def tz_file_handler(message: Message, state: FSMContext):
-    tz_file = message.text
-    await state.update_data(tz_file=tz_file)
+    file_id = message.document.file_id
+    await state.update_data(tz_file=file_id)
     await state.set_state(ProjectForm.occupation_type)
     await message.answer(text='For Whom is Your Project', reply_markup=occupation_markup)
 

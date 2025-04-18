@@ -7,9 +7,6 @@ class CustomerForm(StatesGroup):
     main_panel = State()
     about_me = State()
     settings = State()
-    my_orders = State()
-    contact_us = State()
-
 
 class DeveloperForm(StatesGroup):
     name = State()
@@ -18,8 +15,6 @@ class DeveloperForm(StatesGroup):
     main_panel = State()
     about_me = State()
     settings = State()
-    my_orders = State()
-    contact_us = State()
 
 
 class ProjectForm(StatesGroup):
@@ -29,3 +24,4 @@ class ProjectForm(StatesGroup):
     due_date = State()
     tz_file = State()
     occupation_type = State()
+    tz_file_exist = State()
