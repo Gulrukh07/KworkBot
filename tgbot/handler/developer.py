@@ -47,10 +47,11 @@ async def developer_contact_handler(message: Message, state: FSMContext):
 @dp.message(DeveloperForm.occupation, F.text)
 async def occupation_handler(message: Message, state: FSMContext):
     developer_occupation = message.text
+    tg_username = message.from_user.username
     await state.update_data({'occupation': developer_occupation})
     await state.set_state(DeveloperForm.main_panel)
     data = await state.get_data()
-    developer = Developer(user_id=message.from_user.id,
+    developer = Developer(user_id=message.from_user.id,tg_username=tg_username,
                           name=data['name'], contact=data['contact'], occupation=data['occupation'])
     developer.save()
     buttons = ['Latest Orders', 'My Orders', 'About Me', 'Settings', 'Contact us', 'Back To Register']

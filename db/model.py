@@ -19,6 +19,7 @@ class Developer(Manager):
     name : str = None
     contact : str = None
     occupation : str = None
+    tg_username : str = None
 
 
 @dataclass
