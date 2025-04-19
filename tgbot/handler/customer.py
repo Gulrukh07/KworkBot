@@ -21,7 +21,7 @@ from .handlers import dp
 @dp.message(F.text == "Customer")
 async def customer_button_handler(message: Message, state: FSMContext) -> None:
     user_id = str(message.from_user.id)
-    c = Customer(user_id=user_id).first()
+    c = Customer(user_id=user_id).first() # noqa
     if not c:
         await state.set_state(CustomerForm.name)
         await message.answer('Enter your fullname:')
@@ -58,7 +58,7 @@ async def customer_contact_handler(message: Message, state: FSMContext):
 
 @dp.message(CustomerForm.main_panel, F.text == 'About Me')
 async def about_me_handler(message: Message, state: FSMContext):
-    user = Customer(user_id=str(message.from_user.id)).first()
+    user = Customer(user_id=str(message.from_user.id)).first() # noqa
     await state.set_state(CustomerForm.about_me)
     if user:
         about_me = (
@@ -72,7 +72,7 @@ async def about_me_handler(message: Message, state: FSMContext):
 
 @dp.message(CustomerForm.main_panel, F.text == 'Settings')
 async def about_me_settings_handler(message: Message, state: FSMContext):
-    user = Customer(user_id=str(message.from_user.id)).first()
+    user = Customer(user_id=str(message.from_user.id)).first() # noqa
     await state.set_state(CustomerForm.settings)
     await message.answer(text='You can change your information here!')
     if user:
@@ -94,14 +94,14 @@ async def update_user(message: Message):
 
 @dp.message(CustomerForm.settings, F.text.isalpha())
 async def update_name(message: Message):
-    user = Customer(user_id=str(message.from_user.id)).first()
+    user = Customer(user_id=str(message.from_user.id)).first() # noqa
     user.update(name=message.text)
     await message.answer(text='Your name has been updated!', reply_markup=back_markup)
 
 
 @dp.message(CustomerForm.settings, F.text.isdigit())
 async def update_contact(message: Message):
-    user = Customer(user_id=str(message.from_user.id)).first()
+    user = Customer(user_id=str(message.from_user.id)).first() # noqa
     user.update(name=message.text)
     await message.answer(text='Your contact has been updated!', reply_markup=back_markup)
 

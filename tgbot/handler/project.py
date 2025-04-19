@@ -1,12 +1,9 @@
-from pprint import pprint
 
 from aiogram import F, Bot
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message
 
-from db.model import Project
 from enviroment.utils import Env
-from tgbot.buttons.inline import make_inline_button
 from tgbot.buttons.reply import back_markup, occupation_markup
 from tgbot.dispatcher import dp
 from tgbot.states import ProjectForm, CustomerForm
@@ -39,7 +36,7 @@ async def project_description_handler(message: Message, state: FSMContext):
     description = message.text
     await state.update_data(description=description)
     await state.set_state(ProjectForm.price)
-    await message.answer(text='How much will you pay?', reply_markup=back_markup)
+    await message.answer(text='How much will you pay in $(USD)?', reply_markup=back_markup)
 
 
 @dp.message(ProjectForm.price, F.text.isdigit())

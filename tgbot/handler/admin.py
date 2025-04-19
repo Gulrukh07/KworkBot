@@ -52,25 +52,28 @@ async def message_send_admin(callback: CallbackQuery, state: FSMContext, bot: Bo
     await callback.answer()
 
     devops = Developer().get_all('user_id')
-    project = Project(user_id=customer_id).get_all()[-1]
+    project = Project(user_id=customer_id).get_all()[-1] # noqa
     project_id = project['id']
+    file_id = project.get('tz_file')
     project_info = (
         f"📌 Name: {project['name']}\n"
         f"📝 Description: {project['description']}\n"
         f"💰 Price: {project['price']}\n"
         f"📅 Due Date: {project['due_date']}\n"
-        f"📂 Tz file: {project['tz_file']}\n"
         f"🔧 Occupation Type: {project['occupation_type']}"
     )
     for d in devops:
         await bot.send_message(chat_id=d['user_id'], text=f"{project_info}",
                                reply_markup=developer_response(d['user_id'],project_id))
 
+        if file_id:
+            await bot.send_document(chat_id=d['user_id'], document=file_id)
+
 
 @dp.callback_query(F.data.startswith('❌_'))
 async def cancel_project(callback: CallbackQuery, state: FSMContext):
     customer_id = callback.data.split('_')[-1]
-    project = Project(user_id=customer_id).first()
+    project = Project(user_id=customer_id).first() # noqa
     project.delete()
     await state.clear()
     await callback.message.answer("❌ Project Rejected.")
@@ -81,11 +84,11 @@ async def cancel_project(callback: CallbackQuery, state: FSMContext):
 async def devops_response(callback: CallbackQuery, bot:Bot):
     developer_username = callback.from_user.username if callback.from_user.username else None
     developer_id = str(callback.from_user.id)
-    developer = Developer(user_id=developer_id).first()
+    developer = Developer(user_id=developer_id).first() # noqa
     developer_phone_number = developer.contact
-    customer_id = callback.data.split('_')[-2]
     project_id = int(callback.data.split('_')[-1])
     project = Project(id=project_id).first()
+    customer_id = project.user_id
     project.update(developer_id=developer_id)
     await bot.send_message(chat_id=customer_id, text=f"✅ Your Project is Accepted by Developer")
     if developer_username:
@@ -108,17 +111,17 @@ async def devops_response(callback: CallbackQuery, bot:Bot):
 @dp.callback_query(F.data.startswith('Deal_'))
 async def customer_response(callback: CallbackQuery, bot: Bot):
     customer_id = str(callback.from_user.id)
-    project = Project(user_id=customer_id).get_all()[-1]
+    project = Project(user_id=customer_id).get_all()[-1] # noqa
     project_id = project['id']
     await bot.send_message(chat_id=admin_id,
-                           text=f'{project_id} by {customer_id} agreed with developer {project['developer_id']}')
+                           text=f'{project_id} by Customer: {customer_id} agreed with developer {project['developer_id']}')
     await callback.answer()
 
 
 @dp.callback_query(F.data.startswith('Ignore_'))
 async def delete_developer_id(callback: CallbackQuery, bot: Bot):
     customer_id = str(callback.from_user.id)
-    project = Project(user_id=customer_id).get_all()[-1]
+    project = Project(user_id=customer_id).get_all()[-1] # noqa
     project_id = project['id']
     await bot.send_message(chat_id=admin_id, text=f'{project_id} by Customer: {customer_id} not agreed with Developer:'
                                                   f' {project['developer_id']}')

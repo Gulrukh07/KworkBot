@@ -17,7 +17,7 @@ from tgbot.states import DeveloperForm
 @dp.message(F.text == 'Developer')
 async def developer_button_handler(message: Message, state: FSMContext) -> None:
     user_id = str(message.from_user.id)
-    c = Developer(user_id=user_id).first()
+    c = Developer(user_id=user_id).first() # noqa
     if not c:
         await state.set_state(DeveloperForm.name)
         await message.answer('Enter your fullname:')
@@ -63,7 +63,7 @@ async def occupation_handler(message: Message, state: FSMContext):
 
 @dp.message(DeveloperForm.main_panel, F.text == 'About Me')
 async def about_me_handler(message: Message, state: FSMContext):
-    user = Developer(user_id=str(message.from_user.id)).first()
+    user = Developer(user_id=str(message.from_user.id)).first() # noqa
     await state.set_state(DeveloperForm.about_me)
     if user:
         about_me = (
@@ -78,7 +78,7 @@ async def about_me_handler(message: Message, state: FSMContext):
 
 @dp.message(DeveloperForm.main_panel, F.text == 'Settings')
 async def about_me_settings_handler(message: Message, state: FSMContext):
-    user = Developer(user_id=str(message.from_user.id)).first()
+    user = Developer(user_id=str(message.from_user.id)).first() # noqa
     await state.set_state(DeveloperForm.settings)
     await message.answer(text='You can change your information here!')
     if user:
@@ -102,21 +102,21 @@ async def update_user(message: Message):
 
 @dp.message(DeveloperForm.settings, F.text.in_({'Fullstack', 'Android', 'BackEnd', 'FrontEnd'}))
 async def update_occupation(message: Message):
-    user = Developer(user_id=str(message.from_user.id)).first()
+    user = Developer(user_id=str(message.from_user.id)).first() # noqa
     user.update(occupation=message.text)
     await message.answer(text='Your occupation has been updated!', reply_markup=back_markup)
 
 
 @dp.message(DeveloperForm.settings, F.text.isalpha())
 async def update_name(message: Message):
-    user = Developer(user_id=str(message.from_user.id)).first()
+    user = Developer(user_id=str(message.from_user.id)).first() # noqa
     user.update(name=message.text)
     await message.answer(text='Your name has been updated!', reply_markup=back_markup)
 
 
 @dp.message(DeveloperForm.settings, F.text.isdigit())
 async def update_contact(message: Message):
-    user = Developer(user_id=str(message.from_user.id)).first()
+    user = Developer(user_id=str(message.from_user.id)).first() # noqa
     user.update(name=message.text)
     await message.answer(text='Your contact has been updated!', reply_markup=back_markup)
 
@@ -143,3 +143,29 @@ async def my_orders_handler(message:Message):
         i+=1
     formatted_data = "\n" + "\n".join(data)
     await message.answer(text=f'Your Projects:{formatted_data}', reply_markup=back_markup)
+
+@dp.message(DeveloperForm.main_panel, F.text == 'Latest Orders')
+async def latest_orders(message:Message):
+    developer_occupation = Developer(user_id=str(message.from_user.id)).first().occupation # noqa
+    project = Project(occupation_type=developer_occupation).get_all()
+    data = []
+    for p in project[::-1]:
+        if p['developer_id'] != None: # noqa
+            continue
+        else:
+            project_info =(
+                f"  Latest Order: \n\n"
+                f"📌 Name: {p['name']}\n"
+                f"📝 Description: {p['description']}\n"
+                f"💰 Price: {p['price']}\n"
+                f"📅 Due Date: {p['due_date']}\n"
+                f"📂 Tz file: {p['tz_file']}\n"
+                f"🔧 Occupation Type: {p['occupation_type']}\n"
+            )
+            data.append(project_info)
+            break
+    if len(data) != 0:
+        await message.answer(text=data[0],reply_markup=back_markup)
+    else:
+        await message.answer(text='No Information Found!', reply_markup=back_markup)
+
