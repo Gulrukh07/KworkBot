@@ -127,3 +127,5 @@ class Manager(DB):
         data = self.cursor.fetchall()
         datas: list = self.get_dict_resultset(data)
         return datas
+
+# 172.17.0.2:5432

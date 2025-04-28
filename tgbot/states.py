@@ -25,3 +25,6 @@ class ProjectForm(StatesGroup):
     tz_file = State()
     occupation_type = State()
     tz_file_exist = State()
+
+class BotState(StatesGroup):
+    language = State()

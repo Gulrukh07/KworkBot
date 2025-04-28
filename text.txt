@@ -1,5 +1,0 @@
-1. State To'g'irlash
-2. handler ishlidigan qilish
-3. update user
-
-
